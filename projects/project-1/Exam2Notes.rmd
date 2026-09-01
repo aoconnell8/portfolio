@@ -1,0 +1,140 @@
+---
+title: "Exam 2 Notes"
+author: "Anna OConnell"
+date: "2026-03-05"
+output: html_document
+---
+
+ Everything important we learn between exams 1 and 2. Note: exam is cumulative
+ 
+## Multiple Linear Regression
+ 
+ - when interpreting, keep all other predictors constant
+ - need to engineer all variables so theyre all linear
+ 
+ 
+```{r}
+# read data in
+mvdata <- read.csv('C:/Users/annae/Downloads/ISA391/MarketValueData.csv')
+head(mvdata)
+
+#Simple linear regression would just have only one predictor, no +
+fit.mv <- lm(Mkt_Value_1000s~Sqr_Ft+House_Age, data=mvdata)
+summary(fit.mv)
+```
+
+
+# Assumptions 
+ 
+ **Linearity** each predictor plotted with y, is scatterplot linear? can also plot line of best fit \
+ plot(college$Cost4_A, 
+     college$md_earn_wne_p10,
+     main= "Scatterplot of Cost vs Earning",
+     xlab = "Cost",
+     ylab = "Earn",
+     col= "pink") \
+abline(college.reg) \
+ 
+ **Assumption 1: Mean e Zero** test that the mean of the e distribution is zero \
+ mean(college.res) \
+
+ **Assumption 2: Equal Variance** residual plot \
+names(college.reg) \
+college.fitted <- college.reg$fitted.values \
+plot(college.fitted, college.res, ylab="residuals", xlab = "predicted earnings", main = "Residual Plot") \
+abline(0,0)\
+
+ 
+ **Assumption 3: Normality** histogram of e, qq normal quantile plot \
+ wine.resid <- resid(wine.reg) \
+qqnorm(wine.resid) \
+qqline(wine.resid) \
+
+hist(college.res) #gets histogram of residuals \
+
+ **Assumption 4: Independence** is sample randomly selected? if so, residuals will be independent from one another. \
+ 
+ why do i need only one plot for residuals but one for each predictor for linearity? because even for many predictors, each observation only has one residual 
+ 
+ 
+# Code #
+
+Scatterplot matrix: 
+```{r}
+pairs(mvdata) #scatterplot matrix to check lienarity 
+
+pairs(~Mkt_Value_1000s+Sqr_Ft+House_Age, data=mvdata) # ~ means "by" want them all by each other
+```
+
+To get just coefficents table: 
+```{r}
+fit.mv <- lm(Mkt_Value_1000s~Sqr_Ft+House_Age, data=mvdata)
+summary(fit.mv)$coefficients 
+```
+
+To get anova table: (test meaningful/not)
+```{r}
+anova(fit.mv)
+```
+
+## Interpretations
+
+**Coefficents** 
+
+**B0** when the size AND age of a home is zero, the estimated market value is $197.331. Not practical in this case because a house has to have a size and age > 0 \
+   in this case, we can check summary(mvdata$predictor) and then check the minimum to see if it could be zero, avoid extrapolation \
+**B1** when a house has one more square foot, the price will increase by $40.90 KEEPING THE HOUSE AGE CONSTANT \
+**B2** when a house is one more year old, the price will decrease by $825.00 KEEPING THE SQUARE FOOTAGE CONSTANT\
+
+## Overall Significance of Regression
+
+**Hypothesis test**
+**Ho** B1=B2=...=0 ; The regression is not meaningful
+**Ha** At least one B is not 0; The regression is meaningful
+
+**Degree of Freedom**
+for model --> k: number of predictors
+for error --> n-(k+1)
+total --> n-1
+
+```{r}
+# pf() gives you everything to the left of the F stat, so p value is 1-pf
+# and do pf(x,x,x, lower.tail=FALSE)
+```
+Now, if we want to test for an individual predictor, partial t-test \ 
+Use Summary , coefficient for each predictor 
+
+**Interpretations**
+if p-value < alpha: predictor is useful / significant contribution to regression 
+if p-value > alpha: with other predictors already in regression, adding predictor does not provide significant contribution
+
+Get a P-value based on t test stat 
+
+```{r}
+pt(6.109, 39, lower.tail=FALSE)*2
+```
+
+**Confidence Intervals**
+
+```{r}
+confint(fit.mv, level=0.95)
+#With same house age/with house age fixed, then if you increase one sqr foot of house, house price will increase by (x,x)
+```
+
+R^2 = proportion of observed variation in y
+
+```{r}
+predict(fit.mv,
+        newdata=data.frame(House_Age=25, Sqr_Ft=1500),
+        interval = 'confidence',
+        level = 0.95)
+```
+
+
+
+
+
+
+
+
+
